@@ -1,17 +1,20 @@
 ---
 - name: Create VMs
   hosts: localhost
+  vars:
+    vmname: vm1
+    diskfile: /home1/vms/vm1.qocw2
   roles:
     - role: stackhpc.libvirt-vm
       libvirt_vms:
         - state: present
-          name: 'vm2'
-          memory_mb: 1024
-          vcpus: 1
+          name: '{{ vmname }}'
+          memory_mb: 64000
+          vcpus: 20
           volumes:
             - type: 'file'
               format: 'qcow2'
-              dev: '/home1/vms/vm1.qocw2'
+              dev: '{{ diskfile }}'
           interfaces:
             - type: 'bridge'
               source:
