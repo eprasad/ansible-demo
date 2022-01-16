@@ -1,0 +1,11 @@
+---
+- hosts: localhost
+  vars:
+    user: www-data
+    worker_processes: 2
+    pid: /run/nginx.pid
+    worker_connections: 768
+  tasks:
+  - name: demo msg
+    debug: 
+      msg: "hello world"
