@@ -2,7 +2,7 @@
 hosts: testserver 
 tasks:
 
-  - name: Remove the Apache package
+  - name: install the Apache package
     yum:
       name: httpd
       state: present
