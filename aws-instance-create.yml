@@ -1,0 +1,90 @@
+---
+- name: play to create EC2 instance
+  hosts: localhost
+  gather_facts: yes
+  vars:
+    aws_region: us-east-2
+  tasks:
+    - name:
+      pip:
+        name: boto3
+        state: present
+    - name: Task to create vpc 
+      amazon.aws.ec2_vpc_net:
+        name: ansible_tower_vpc
+        cidr_block: 10.10.0.0/16
+        region: "{{ aws_region}}"
+        tenancy: default
+      register: ansible_tower_vpc
+    - name: Create an Internet Gateway and associate to the VPC 
+      amazon.aws.ec2_vpc_igw:
+        vpc_id: "{{ ansible_tower_vpc.vpc.id }}"
+        region: "{{ aws_region }}"
+        state: present
+      register: ansible_tower_igw
+    - name: Create a subnet on the VPC
+      amazon.aws.ec2_vpc_subnet:
+        state: present
+        vpc_id: "{{ ansible_tower_vpc.vpc.id }}"
+        cidr: 10.10.0.0/20
+        region: "{{ aws_region }}"
+      register: ansible_tower_subnet
+    - name: Setup public subnet route table
+      amazon.aws.ec2_vpc_route_table:
+        vpc_id: "{{ ansible_tower_vpc.vpc.id }}"
+        region: "{{ aws_region }}"
+        subnets: "{{ ansible_tower_subnet.subnet.id }}"
+        routes:
+          - dest: 0.0.0.0/0
+            gateway_id: "{{ ansible_tower_igw.gateway_id }}"
+    - name: Task to create AWS Security group
+      amazon.aws.ec2_group:
+        name: ansible_tower_sg
+        description: AWS Security Group for Ansible Tower Demonstration
+        vpc_id: "{{ ansible_tower_vpc.vpc.id }}"
+        region: "{{ aws_region }}"
+        rules:
+          - proto: tcp 
+            ports: 22
+            cidr_ip: 0.0.0.0/0
+            rule_desc: allow all connections on port 22
+          - proto: tcp
+            ports: 3389
+            cidr_ip: 0.0.0.0/0
+            rule_desc: allow all connections on port 3389
+          - proto: tcp
+            ports: 5986
+            cidr_ip: 0.0.0.0/0
+            rule_desc: allow all connections on port 5986
+    - name: Task to create key pair
+      amazon.aws.ec2_key:
+        name: ansible-tower-aws-key
+        key_material: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDKSxLK2hv5wSSTU1tYlkBNyXqWAC9+TtyhbR78cRHO+9FYsMuAM9d24YYCb8iYsM+LsavZOpSxnVQTScx/+xHYnFH/eCQZXF6pud+DjEaXsx/pP7CwWrA4gsKZlOQkA4iZOFzomG9ik/3co+PcLI8+LCmsQM3ERiztcKwdhtCvSb4XhMoLd9ntL+q2+cGs4W6qn/r8QDa9cXNzFmAauVXQJOazDa1kswsg/LzJ//QSl9zWHBeqtBcnUkaXAOgC4bSYDRL4ZXoMAPprrsdDaRoRHkuaJsRkaDQXwMo8wT0nzSRImA1QTJ1GWQWvmLSVTvvxI6ptb1dvH+YGFw/BqCDGFjqOj2k5Yvm6j+tyYqtsGuIA2g5FrdHjdZVgf6jMweD23CH2GSlDlm2YMrf+wexh/Fup2kpnuodWhH/0AnPw9bCi+r9icb6bOnSVv3NlHgcHlizHkFa314AZUZ/EWkMi7YqgoN291EsEuq3MgfE2x/LbbtDeijju4X2kOdvO250= apple@dkotte-mac"
+        region: "{{ aws_region }}"
+    - name: Task to provision the Windows Server 2019 EC2 instance
+      amazon.aws.ec2:
+        region: "{{ aws_region }}"
+        key_name: ansible-tower-aws-key
+        instance_type: t2.medium
+        image: ami-0d72555523e18b6d7
+        wait: yes
+        group: ansible_tower_sg
+        instance_tags:
+          Name: Windows
+        count: 1
+        vpc_subnet_id: "{{ ansible_tower_subnet.subnet.id }}"
+        assign_public_ip: yes
+      register: ansible_tower_instance_windows
+    - name: get the Administrator password
+      amazon.aws.ec2_win_password:
+        instance_id: ami-0d72555523e18b6d7
+        region: us-east-1
+        key_file: "~/aws-creds/ansible-tower-aws-key.pem"
+    - name: Show windows instance details - debug output
+      debug: 
+        msg: "windows instance is accesible at {{ ansible_tower_instance_windows }}"
+    - name: Gather facts
+      setup:
+      register: output
+    - set_fact:
+        name: "{{ output }}"
