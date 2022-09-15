@@ -10,7 +10,7 @@
         region: "{{ aws_region }}"
         key_name: "{{ aws_key }}"
         instance_type: "{{ aws_instance_type }}"
-        image: "{{ aws_instance_type | default('ami-0d72555523e18b6d7') }}" 
+        image: "{{ aws_ami | default('ami-0d72555523e18b6d7') }}" 
         wait: yes
         group: "{{ aws_sg }}"
         instance_tags:
