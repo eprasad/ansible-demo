@@ -1,0 +1,29 @@
+---
+- name: play to create EC2 instance
+  hosts: windows
+  gather_facts: yes
+  vars:
+    aws_region: us-east-2
+  tasks:
+    - name: Task to provision the Windows Server 2019 EC2 instance
+      amazon.aws.ec2:
+        region: "{{ aws_region }}"
+        key_name: "{{ aws_key }}"
+        instance_type: "{{ aws_instance_type }}"
+        image: "{{ aws_instance_type | default('ami-0d72555523e18b6d7') }}" 
+        wait: yes
+        group: "{{ aws_sg }}"
+        instance_tags:
+          Name: Windows
+        count: 1
+        vpc_subnet_id: "{{ ansible_tower_subnet.subnet.id }}"
+        assign_public_ip: yes
+      register: ansible_tower_instance_windows
+    - name: Show windows instance details - debug output
+      debug: 
+        msg: "windows instance is accesible at {{ ansible_tower_instance_windows }}"
+    - name: Gather facts
+      setup:
+      register: output
+    - set_fact:
+        name: "{{ output }}"
