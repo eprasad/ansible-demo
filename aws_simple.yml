@@ -6,7 +6,7 @@
     aws_region: us-east-2
   tasks:
     - name: Task to provision the Windows Server 2019 EC2 instance
-      amazon.aws.ec2:
+       amazon.aws.ec2_instance:
         region: "{{ aws_region }}"
         key_name: "{{ aws_key }}"
         instance_type: "{{ aws_instance_type }}"
