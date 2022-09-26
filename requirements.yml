@@ -1,5 +1,4 @@
 ---
 collections:
 # With just the collection name
-- community.aws
-- amazon.aws
+- 5devcentral.cloudservices
