@@ -10,7 +10,8 @@
     - name: Template a file to /etc/file.conf
       ansible.builtin.template:
         src: foo.j2
-        dest: /etc/neha/foo.conf    
+        dest: /etc/neha/foo.conf
+      ignore_error: yes
       
 
     - name: install the Apache package
