@@ -1,19 +1,20 @@
 ---
-hosts: all 
-tasks:    
-  - name: Template a file to /etc/file.conf
-    ansible.builtin.template:
-      src: foo.j2
-      dest: /prasad/data/foo.conf    
-      
-  - name: Sleep for 300 seconds and continue with play
-    ansible.builtin.wait_for:
-    timeout: 300      
-    
-  - name: install the Apache package
-    yum:
-      name: httpd
-      state: present
-      
+- name: Auto Heal Demo
+  hosts: all 
+  tasks:    
+    - name: Template a file to /etc/file.conf
+      ansible.builtin.template:
+        src: foo.j2
+        dest: /prasad/data/foo.conf    
+
+    - name: Sleep for 300 seconds and continue with play
+      ansible.builtin.wait_for:
+      timeout: 300      
+
+    - name: install the Apache package
+      yum:
+        name: httpd
+        state: present
+
 
 
