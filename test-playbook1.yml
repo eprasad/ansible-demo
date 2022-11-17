@@ -12,12 +12,6 @@
         src: foo.j2
         dest: /etc/neha/foo.conf
       ignore_errors: yes
-      
-
-    - name: install the Apache package
-      yum:
-        name: httpd
-        state: present
 
 
 
