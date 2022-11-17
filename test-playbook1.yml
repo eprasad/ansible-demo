@@ -1,6 +1,7 @@
 ---
 - name: Auto Heal Demo
-  hosts: localhost 
+  hosts: localhost
+  ansible_user: root
   tasks:    
 
     - name: Template a file to /etc/file.conf
