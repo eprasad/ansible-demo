@@ -1,6 +1,6 @@
 ---
 - name: Auto Heal Demo
-  hosts: all 
+  hosts: localhost 
   tasks:    
 
     - name: Template a file to /etc/file.conf
