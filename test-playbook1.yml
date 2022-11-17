@@ -5,7 +5,7 @@
 
     - name: Template a file to /etc/file.conf
       ansible.builtin.debug:
-        msg: "the value of foo.txt is {{lookup('ansible.builtin.file', '/etc/neha/foo.txt') }}"
+        msg: "the value of neha.txt is {{lookup('ansible.builtin.file', '/etc/neha/neha.txt') }}"
       
     - name: Template a file to /etc/file.conf
       ansible.builtin.template:
